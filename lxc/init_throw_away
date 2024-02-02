@@ -3,7 +3,9 @@ Cyan='\033[0;36m' # Cyan
 NC='\033[0m' # No Color
 
 echo "[${Cyan}+${NC}] Creating new throwaway shell..."
-/opt/scripts/lxc/throw_away_shell
+
+lxc-stop --name pg
+lxc-destroy --name pg
 
 # Check if the container is created yet
 if ! lxc-info --name pg | grep -q "pg doesn't exist" 2>&1; then 
