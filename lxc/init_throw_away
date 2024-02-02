@@ -1,0 +1,48 @@
+##!/bin/bash
+Cyan='\033[0;36m' # Cyan
+NC='\033[0m' # No Color
+
+echo "[${Cyan}+${NC}] Creating new throwaway shell..."
+/opt/scripts/lxc/throw_away_shell
+
+# Check if the container is created yet
+if ! lxc-info --name pg | grep -q "pg doesn't exist" 2>&1; then 
+   lxc-create --name pg --template download -- --dist alpine --release 3.19 --arch amd64
+   lxc-start --name pg
+   echo "======================"
+   lxc-ls --fancy
+   echo "======================"
+fi
+
+# Check if the container "pg" is running
+if ! lxc-info -n pg | grep -q "RUNNING"; then
+    echo "[${Cyan}+${NC}] Container 'pg' is not running. Starting it..."
+    lxc-start --name pg
+fi
+
+# Function to check and install a package
+check_and_install() {  
+    package=$1
+    if ! lxc-attach -n pg -- command -v $package >/dev/null 2>&1; then
+        lxc-attach -n pg -- apk update >/dev/null 2>&1
+        lxc-attach -n pg -- apk add --upgrade apk-tools >/dev/null 2>&1
+        lxc-attach -n pg -- apk upgrade --available >/dev/null 2>&1
+        lxc-attach -n pg -- apk add $package >/dev/null 2>&1
+        echo "[${Cyan}+${NC}] $package done"
+    fi
+}
+
+# Install packages
+echo "[${Cyan}+${NC}] Installing packages..."
+
+# Check and install Python
+check_and_install python3
+
+# Check and install Git
+check_and_install git
+
+
+echo "[${Cyan}+${NC}] Done, bye!"
+echo ""
+
+lxc-attach --name pg

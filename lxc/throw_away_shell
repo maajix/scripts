@@ -1,0 +1,2 @@
+lxc-stop --name pg
+lxc-destroy --name pg
