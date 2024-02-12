@@ -53,7 +53,7 @@ check_and_install wget
 check_and_install bash
 check_and_install curl
 check_and_install ruby
-
+check_and_install py-pip
 
 echo "[${Cyan}+${NC}] Done, bye!"
 echo ""
